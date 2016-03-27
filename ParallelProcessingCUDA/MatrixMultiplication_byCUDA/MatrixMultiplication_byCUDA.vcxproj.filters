@@ -20,6 +20,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="matrixMul_kernel.cu">
+      <Filter>소스 파일</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="helper_cuda_drvapi.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="helper_functions.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -41,13 +49,5 @@
     <ClInclude Include="exception.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="helper_cuda_drvapi.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="matrixMul_kernel.cu">
-      <Filter>소스 파일</Filter>
-    </CudaCompile>
   </ItemGroup>
 </Project>

@@ -15,6 +15,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="matrixMul.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="drvapi_error_string.h" />
+    <ClInclude Include="exception.h" />
+    <ClInclude Include="helper_cuda_drvapi.h" />
+    <ClInclude Include="helper_functions.h" />
+    <ClInclude Include="helper_image.h" />
+    <ClInclude Include="helper_string.h" />
+    <ClInclude Include="helper_timer.h" />
+    <ClInclude Include="nvrtc_helper.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="matrixMul_kernel.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2D8EC46C-A218-492C-B42E-8E7EF24E8F54}</ProjectGuid>

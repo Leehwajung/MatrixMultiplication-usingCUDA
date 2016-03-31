@@ -49,6 +49,11 @@ int main() {
 	cout << "MatrixA(" << dimsA.x << "," << dimsA.y << "), MatrixB(" << dimsB.x << "," << dimsB.y << ")" << endl;
 
 	int matrixResult = matrixMultiplyUsingCUDA(blockSize, dimsA, dimsB);
-	
+	if (matrixResult) {
+		exit(matrixResult);
+	}
+
+	matrixResult = matrixMultiplyUsingCPU(dimsA, dimsB);
+
 	exit(matrixResult);
 }

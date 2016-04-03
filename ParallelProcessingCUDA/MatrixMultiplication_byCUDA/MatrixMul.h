@@ -22,7 +22,7 @@ int matrixMultiplyOnCPU(const dim3 &dimsA, const dim3 &dimsB);
  * Matrix multiplication on the CPU: C = A * B
  * wC is C's width, hC is C's height and wA is A's width
  */
-void matrixMulCPU(float* C, float* A, float* B, int wC, int hC, int wA);
+void matrixMulCPU(DATA* C, DATA* A, DATA* B, int wC, int hC, int wA);
 
 /**
  * Check result of multiplication

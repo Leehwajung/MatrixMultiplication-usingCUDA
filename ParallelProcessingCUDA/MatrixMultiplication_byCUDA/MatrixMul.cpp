@@ -202,13 +202,13 @@ int matrixMultiplyOnCPU(const dim3 &dimsA, const dim3 &dimsB) {
 	}
 }
 
-void matrixMulCPU(float* C, float* A, float* B, int wC, int hC, int wA) {
+void matrixMulCPU(DATA* C, DATA* A, DATA* B, int wC, int hC, int wA) {
 
 	for (int i = 0; i< hC; i++) {
 		for (int j = 0; j < wC; j++) {
 			//C[i * wC + j] = matrixSubMulCPU(i, j, A, B, wA, wC);
 			// Csub is used to store the element
-			float Csub = 0;
+			DATA Csub = 0;
 
 			// Loop over all the sub-matrices of A and B
 			for (int k = j, l = i; k <= j + wA - 1; k++, l += wC) {

@@ -12,15 +12,20 @@
 #include <helper_functions.h>
 #include <cuda.h>
 
+// Machine zero
+#define EPS		1.e-6
+
 // Initial values of matrices A and B
 #define	ValA	1.0f
 #define	ValB	0.01f
 
 // Repeat number of matrix multiplication
-#define NLTER	300
+#define NLTER	10
 
-// Machine zero
-#define EPS		1.e-6
+// For to access "MatrixMul_kernel.cu"
+#define CU_MatrixMul_Kernel			"matrixMul_kernel.cu"
+#define FN_matrixMulCUDA_block16	"matrixMulCUDA_block16"
+#define FN_matrixMulCUDA_block32	"matrixMulCUDA_block32"
 
 // Used names
 using std::cout;
@@ -28,20 +33,20 @@ using std::cerr;
 using std::endl;
 
 
-int matrixMultiplyUsingCUDA(const int blockSize, const dim3 &dimsA, const dim3 &dimsB) {
+int matrixMultiplyOnCUDA(const int blockSize, const dim3 &dimsA, const dim3 &dimsB) {
 
 	// Allocate host memory for matrices A, B and C
 	unsigned int sizeA = dimsA.x * dimsA.y;
 	unsigned int memSizeA = sizeA * sizeof(DATA);
-	DATA *h_A = (DATA*)malloc(memSizeA);
+	DATA *h_A = new DATA[memSizeA];
 
 	unsigned int sizeB = dimsB.x * dimsB.y;
 	unsigned int memSizeB = sizeB * sizeof(DATA);
-	DATA *h_B = (DATA*)malloc(memSizeB);
+	DATA *h_B = new DATA[memSizeB];
 
 	dim3 dimsC(dimsB.x, dimsA.y, 1);
-	unsigned int mem_size_C = dimsC.x * dimsC.y * sizeof(DATA);
-	DATA *h_C = (DATA*)malloc(mem_size_C);
+	unsigned int memSizeC = dimsC.x * dimsC.y * sizeof(DATA);
+	DATA *h_C = new DATA[memSizeC];
 
 	if (h_A == NULL || h_B == NULL || h_C == NULL) {
 		cerr << "Failed to allocate host matrix!" << endl;
@@ -58,12 +63,14 @@ int matrixMultiplyUsingCUDA(const int blockSize, const dim3 &dimsA, const dim3 &
 	size_t ptxSize;
 	compileFileToPTX(kernelFile, 0, NULL, &ptx, &ptxSize);
 	CUmodule mod_kernel = loadPTX(ptx, 0, NULL);
+	delete kernelFile;
+	delete ptx;
 
 	// Allocate device memory
 	CUdeviceptr d_A, d_B, d_C;
 	checkCudaErrors(cuMemAlloc(&d_A, memSizeA));
 	checkCudaErrors(cuMemAlloc(&d_B, memSizeB));
-	checkCudaErrors(cuMemAlloc(&d_C, mem_size_C));
+	checkCudaErrors(cuMemAlloc(&d_C, memSizeC));
 
 	// copy host memory to device
 	checkCudaErrors(cuMemcpyHtoD(d_A, h_A, memSizeA));
@@ -74,10 +81,12 @@ int matrixMultiplyUsingCUDA(const int blockSize, const dim3 &dimsA, const dim3 &
 	
 	CUfunction fn_matrixMulCUDA;
 	if (blockSize == 16) {
-		checkCudaErrors(cuModuleGetFunction(&fn_matrixMulCUDA, mod_kernel, FN_matrixMulCUDA_block16));
+		checkCudaErrors(cuModuleGetFunction(&fn_matrixMulCUDA,
+			mod_kernel, FN_matrixMulCUDA_block16));
 	}
 	else {
-		checkCudaErrors(cuModuleGetFunction(&fn_matrixMulCUDA, mod_kernel, FN_matrixMulCUDA_block32));
+		checkCudaErrors(cuModuleGetFunction(&fn_matrixMulCUDA,
+			mod_kernel, FN_matrixMulCUDA_block32));
 	}
 
 	// Setup execution parameters
@@ -95,33 +104,33 @@ int matrixMultiplyUsingCUDA(const int blockSize, const dim3 &dimsA, const dim3 &
 	// Execute the kernel with timer
 	float totalLeadTime = 0;
 	for (int i = 0; i < NLTER; i++) {
-		StopWatchWin eachTimer;
-		eachTimer.start();
+		StopWatchWin timer;
+		timer.start();
 
 		checkCudaErrors(cuLaunchKernel(fn_matrixMulCUDA,
 			grid.x, grid.y, grid.z,				/* grid dim */
 			threads.x, threads.y, threads.z,	/* block dim */
 			0, 0,								/* shared mem, stream */
 			&args[0],							/* arguments */
-			0));
+			NULL));
 
-		eachTimer.stop();
+		timer.stop();
 		checkCudaErrors(cuCtxSynchronize());
 		
-		totalLeadTime += eachTimer.getTime();
-		cout << "Lead time (" << i << "): " << eachTimer.getTime() << endl;
+		totalLeadTime += timer.getTime();
+		cout << "Lead time (" << i << "): " << timer.getTime() << endl;
 	}
 	cout << "Total lead time: " << totalLeadTime << endl;
 	cout << "Average lead time: " << totalLeadTime / NLTER << endl;
 
 	// Copy result from device to host
-	checkCudaErrors(cuMemcpyDtoH(h_C, d_C, mem_size_C));
+	checkCudaErrors(cuMemcpyDtoH(h_C, d_C, memSizeC));
 	bool correct = CheckResult(dimsA, dimsC, h_C);
 
 	// Clean up memory
-	free(h_A);
-	free(h_B);
-	free(h_C);
+	delete[] h_A;
+	delete[] h_B;
+	delete[] h_C;
 
 	checkCudaErrors(cuMemFree(d_A));
 	checkCudaErrors(cuMemFree(d_B));
@@ -137,20 +146,20 @@ int matrixMultiplyUsingCUDA(const int blockSize, const dim3 &dimsA, const dim3 &
 	}
 }
 
-int matrixMultiplyUsingCPU(const dim3 &dimsA, const dim3 &dimsB) {
+int matrixMultiplyOnCPU(const dim3 &dimsA, const dim3 &dimsB) {
 
 	// Allocate memory for matrices A, B and C
 	unsigned int sizeA = dimsA.x * dimsA.y;
 	unsigned int memSizeA = sizeA * sizeof(DATA);
-	DATA *h_A = (DATA*)malloc(memSizeA);
+	DATA *h_A = new DATA[memSizeA];
 
 	unsigned int sizeB = dimsB.x * dimsB.y;
 	unsigned int memSizeB = sizeB * sizeof(DATA);
-	DATA *h_B = (DATA*)malloc(memSizeB);
+	DATA *h_B = new DATA[memSizeB];
 
 	dim3 dimsC(dimsB.x, dimsA.y, 1);
 	unsigned int mem_size_C = dimsC.x * dimsC.y * sizeof(DATA);
-	DATA *h_C = (DATA*)malloc(mem_size_C);
+	DATA *h_C = new DATA[mem_size_C];
 
 	if (h_A == NULL || h_B == NULL || h_C == NULL) {
 		cerr << "Failed to allocate matrix!" << endl;
@@ -161,21 +170,18 @@ int matrixMultiplyUsingCPU(const dim3 &dimsA, const dim3 &dimsB) {
 	constantInit(h_A, sizeA, ValA);
 	constantInit(h_B, sizeB, ValB);
 
-	// Invoke the function with timer
+	// Invoke the multiply function with timer
 	cout << "Computing result using CPU..." << endl;
 
 	float totalLeadTime = 0;
 	for (int i = 0; i < NLTER; i++) {
-		StopWatchWin eachTimer;
-		eachTimer.start();
-
+		StopWatchWin timer;
+		timer.start();
 		matrixMulCPU(h_C, h_A, h_B, dimsC.x, dimsC.y, dimsA.x);
+		timer.stop();
 
-		eachTimer.stop();
-		checkCudaErrors(cuCtxSynchronize());
-
-		totalLeadTime += eachTimer.getTime();
-		cout << "Lead time (" << i << "): " << eachTimer.getTime() << endl;
+		totalLeadTime += timer.getTime();
+		cout << "Lead time (" << i << "): " << timer.getTime() << endl;
 	}
 	cout << "Total lead time: " << totalLeadTime << endl;
 	cout << "Average lead time: " << totalLeadTime / NLTER << endl;
@@ -184,9 +190,9 @@ int matrixMultiplyUsingCPU(const dim3 &dimsA, const dim3 &dimsB) {
 	bool correct = CheckResult(dimsA, dimsC, h_C);
 
 	// Clean up memory
-	free(h_A);
-	free(h_B);
-	free(h_C);
+	delete[] h_A;
+	delete[] h_B;
+	delete[] h_C;
 
 	if (correct) {
 		return EXIT_SUCCESS;
@@ -200,23 +206,18 @@ void matrixMulCPU(float* C, float* A, float* B, int wC, int hC, int wA) {
 
 	for (int i = 0; i< hC; i++) {
 		for (int j = 0; j < wC; j++) {
-			C[i * wC + j] = matrixSubMulCPU(i, j, A, B, wA, wC);
+			//C[i * wC + j] = matrixSubMulCPU(i, j, A, B, wA, wC);
+			// Csub is used to store the element
+			float Csub = 0;
+
+			// Loop over all the sub-matrices of A and B
+			for (int k = j, l = i; k <= j + wA - 1; k++, l += wC) {
+				// Multiply the two matrices together
+				Csub += A[k] * B[l];
+			}
+			C[i * wC + j] = Csub;
 		}
 	}
-}
-
-float matrixSubMulCPU(int xC, int yC, float* A, float* B, int wA, int wB) {
-	
-	// Csub is used to store the element
-	float Csub = 0;
-
-	// Loop over all the sub-matrices of A and B
-	for (int i = yC, j = xC; i <= yC + wA - 1; i++, j += wB) {
-		// Multiply the two matrices together
-		Csub += A[i] * B[j];
-	}
-
-	return Csub;
 }
 
 bool CheckResult(const dim3& dimsA, const dim3& dimsC, const DATA* h_C) {

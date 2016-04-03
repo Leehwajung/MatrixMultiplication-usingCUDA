@@ -33,7 +33,7 @@ using std::cerr;
 using std::endl;
 
 
-int matrixMultiplyUsingCUDA(const int blockSize, const dim3 &dimsA, const dim3 &dimsB) {
+int matrixMultiplyUsingCUDA(const dim3 &dimsA, const dim3 &dimsB, const int blockSize) {
 
 	// Allocate host memory for matrices A, B and C
 	unsigned int sizeA = dimsA.x * dimsA.y;

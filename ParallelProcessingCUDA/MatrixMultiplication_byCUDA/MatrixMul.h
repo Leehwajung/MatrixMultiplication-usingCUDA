@@ -3,6 +3,9 @@
 // CUDA runtime
 #include <cuda_runtime.h>
 
+// GPU block size
+#define BLOCKSIZE	32
+
 // Matrix data type
 typedef float DATA;
 
@@ -11,7 +14,7 @@ typedef float DATA;
 /**
  * Run a matrix multiplication using CUDA
  */
-int matrixMultiplyUsingCUDA(const int blockSize, const dim3 &dimsA, const dim3 &dimsB);
+int matrixMultiplyUsingCUDA(const dim3 &dimsA, const dim3 &dimsB, const int blockSize = BLOCKSIZE);
 
 /**
  * Run a matrix multiplication using CPU

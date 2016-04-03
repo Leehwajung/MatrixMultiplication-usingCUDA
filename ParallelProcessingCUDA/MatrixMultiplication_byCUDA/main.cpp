@@ -1,43 +1,33 @@
 #include <iostream>
 #include "MatrixMul.h"
 
-#define BLOCKSIZE16	16
-#define BLOCKSIZE32	32
-
 using namespace std;
 
-int compareCUDAandCPUMultiplycation(const int blockSize, const dim3& dimsA, const dim3& dimsB);
+int compareCUDAandCPUMultiplycation(const dim3& dimsA, const dim3& dimsB);
+
 
 /**
  * Program main
  */
 int main() {
 
-	dim3 dimsL(10 * BLOCKSIZE32, 10 * BLOCKSIZE32, 1);
-	dim3 dimsH(100 * BLOCKSIZE32, 100 * BLOCKSIZE32, 1);
+	dim3 dimsL(10 * BLOCKSIZE, 10 * BLOCKSIZE, 1);
+	dim3 dimsH(100 * BLOCKSIZE, 100 * BLOCKSIZE, 1);
 
-	// Block size 32, matrix size 320
-	int matrixResult = compareCUDAandCPUMultiplycation(BLOCKSIZE32, dimsL, dimsL);
+	// matrix size 320 * 320
+	int matrixResult = compareCUDAandCPUMultiplycation(dimsL, dimsL);
 	if (matrixResult) {
 		exit(matrixResult);
 	}
 
 	cout << endl << "-----" << endl;
 
-	// Block size 16, matrix size 320
-	int matrixResult = compareCUDAandCPUMultiplycation(BLOCKSIZE16, dimsL, dimsL);
-	if (matrixResult) {
-		exit(matrixResult);
-	}
-
-	cout << endl << "-----" << endl;
-
-	// Block size 32, matrix size 3200
-	matrixResult = compareCUDAandCPUMultiplycation(BLOCKSIZE32, dimsH, dimsH);
+	// matrix size 3200 * 3200
+	matrixResult = compareCUDAandCPUMultiplycation(dimsH, dimsH);
 	exit(matrixResult);
 }
 
-int compareCUDAandCPUMultiplycation(const int blockSize, const dim3& dimsA, const dim3& dimsB) {
+int compareCUDAandCPUMultiplycation(const dim3& dimsA, const dim3& dimsB) {
 
 	if (dimsA.x != dimsB.y) {
 		cerr << "Error: outer matrix dimensions must be equal. (" << dimsA.x << " != " << dimsB.y << ")" << endl;
@@ -45,7 +35,7 @@ int compareCUDAandCPUMultiplycation(const int blockSize, const dim3& dimsA, cons
 	}
 	cout << "MatrixA(" << dimsA.x << "," << dimsA.y << "), MatrixB(" << dimsB.x << "," << dimsB.y << ")" << endl;
 
-	int matrixResult = matrixMultiplyUsingCUDA(blockSize, dimsA, dimsB);
+	int matrixResult = matrixMultiplyUsingCUDA(dimsA, dimsB);
 	if (matrixResult) {
 		return(matrixResult);
 	}

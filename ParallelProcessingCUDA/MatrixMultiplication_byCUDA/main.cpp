@@ -45,7 +45,7 @@ int compareCUDAandCPUMultiplycation(const int blockSize, const dim3& dimsA, cons
 	}
 	cout << "MatrixA(" << dimsA.x << "," << dimsA.y << "), MatrixB(" << dimsB.x << "," << dimsB.y << ")" << endl;
 
-	int matrixResult = matrixMultiplyOnCUDA(blockSize, dimsA, dimsB);
+	int matrixResult = matrixMultiplyUsingCUDA(blockSize, dimsA, dimsB);
 	if (matrixResult) {
 		return(matrixResult);
 	}

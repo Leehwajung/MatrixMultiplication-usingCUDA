@@ -8,7 +8,7 @@ Language: C++, CUDA C++<br>
 IDE: Microsoft Visual Studio 2015<br>
 OS: Microsoft Windows 10 Pro
 
-### Hardware ###
+### Test Hardware ###
 CPU: Intel i7-4712MQ<br>
 GPU: Nvidia GeForce 840M<br>
 VRAM: 2GB GDDR3

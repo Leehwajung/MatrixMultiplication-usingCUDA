@@ -11,7 +11,7 @@ typedef float DATA;
 /**
  * Run a matrix multiplication using CUDA
  */
-int matrixMultiplyOnCUDA(const int blockSize, const dim3 &dimsA, const dim3 &dimsB);
+int matrixMultiplyUsingCUDA(const int blockSize, const dim3 &dimsA, const dim3 &dimsB);
 
 /**
  * Run a matrix multiplication using CPU

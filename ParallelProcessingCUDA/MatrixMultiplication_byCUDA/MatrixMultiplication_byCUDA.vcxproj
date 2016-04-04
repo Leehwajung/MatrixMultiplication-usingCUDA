@@ -41,7 +41,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IntDir>$(Configuration)\</IntDir>
+    <IntDir>$(Platform)/$(Configuration)/</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
@@ -58,7 +58,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>cuda.lib;nvrtc.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CudaToolkitLibDir)\\*.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(CudaToolkitLibDir);</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
@@ -101,17 +101,20 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatrixMul.cpp" />
+    <ClCompile Include="matrixMulCUBLAS.cpp" />
     <None Include="MatrixMul_kernel.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="drvapi_error_string.h" />
     <ClInclude Include="exception.h" />
+    <ClInclude Include="helper_cuda.h" />
     <ClInclude Include="helper_cuda_drvapi.h" />
     <ClInclude Include="helper_functions.h" />
     <ClInclude Include="helper_image.h" />
     <ClInclude Include="helper_string.h" />
     <ClInclude Include="helper_timer.h" />
     <ClInclude Include="MatrixMul.h" />
+    <ClInclude Include="matrixMulCUBLAS.h" />
     <ClInclude Include="nvrtc_helper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

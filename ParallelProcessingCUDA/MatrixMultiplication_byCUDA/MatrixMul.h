@@ -21,6 +21,8 @@ int matrixMultiplyUsingCUDA(const dim3 &dimsA, const dim3 &dimsB, const int bloc
  */
 int matrixMultiplyOnCPU(const dim3 &dimsA, const dim3 &dimsB);
 
+int matrixMultiplyUsingCUBLAS(const dim3 &dimsA, const dim3 &dimsB);
+
 /**
  * Matrix multiplication on the CPU: C = A * B
  * wC is C's width, hC is C's height and wA is A's width
@@ -36,3 +38,12 @@ bool CheckResult(const dim3& dimsA, const dim3& dimsC, const DATA* h_C);
  * Initialize DATA array
  */
 void constantInit(DATA dataArr[], const int arrSize, const DATA value);
+
+
+
+#ifndef _matrixSize2
+#define _matrixSize2
+
+
+int matrixMultiply(const dim3 &dimsA, const dim3 &dimsB, int blockSize = BLOCKSIZE);
+#endif _matrixSize2

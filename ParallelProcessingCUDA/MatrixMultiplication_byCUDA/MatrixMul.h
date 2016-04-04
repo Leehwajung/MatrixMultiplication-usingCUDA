@@ -17,11 +17,14 @@ typedef float DATA;
 int matrixMultiplyUsingCUDA(const dim3 &dimsA, const dim3 &dimsB, const int blockSize = BLOCKSIZE);
 
 /**
- * Run a matrix multiplication using CPU
+* Run a matrix multiplication using CUBLAS
+*/
+int matrixMultiplyUsingCUBLAS(const dim3 &dimsA, const dim3 &dimsB, int blockSize = BLOCKSIZE);
+
+/**
+ * Run a matrix multiplication on CPU
  */
 int matrixMultiplyOnCPU(const dim3 &dimsA, const dim3 &dimsB);
-
-int matrixMultiplyUsingCUBLAS(const dim3 &dimsA, const dim3 &dimsB);
 
 /**
  * Matrix multiplication on the CPU: C = A * B
@@ -38,12 +41,3 @@ bool CheckResult(const dim3& dimsA, const dim3& dimsC, const DATA* h_C);
  * Initialize DATA array
  */
 void constantInit(DATA dataArr[], const int arrSize, const DATA value);
-
-
-
-#ifndef _matrixSize2
-#define _matrixSize2
-
-
-int matrixMultiply(const dim3 &dimsA, const dim3 &dimsB, int blockSize = BLOCKSIZE);
-#endif _matrixSize2

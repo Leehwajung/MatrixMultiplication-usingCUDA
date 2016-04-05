@@ -24,9 +24,6 @@
     <None Include="MatrixMul_kernel.cu">
       <Filter>소스 파일</Filter>
     </None>
-    <ClCompile Include="matrixMulCUBLAS.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="nvrtc_helper.h">
@@ -57,9 +54,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="helper_cuda.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="matrixMulCUBLAS.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

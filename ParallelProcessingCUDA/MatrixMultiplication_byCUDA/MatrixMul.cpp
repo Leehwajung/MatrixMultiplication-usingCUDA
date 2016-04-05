@@ -107,8 +107,16 @@ int matrixMultiplyUsingCUDA(const dim3 &dimsA, const dim3 &dimsB, const int bloc
 		(void*)&dimsB.x
 	};
 
+	// Perform warmup operation with CUDA
+	checkCudaErrors(cuLaunchKernel(fn_matrixMulCUDA,
+		grid.x, grid.y, grid.z, threads.x, threads.y, threads.z,
+		0, 0, args, NULL));
+	checkCudaErrors(cuCtxSynchronize());
+
 	// Execute the kernel with timer
 	double totalLeadTime = 0;
+	StopWatchWin pfTimer;
+	pfTimer.start();
 	for (int i = 0; i < NLTER; i++) {
 		StopWatchWin timer;
 		timer.start();
@@ -117,7 +125,7 @@ int matrixMultiplyUsingCUDA(const dim3 &dimsA, const dim3 &dimsB, const int bloc
 			grid.x, grid.y, grid.z,				/* grid dim */
 			threads.x, threads.y, threads.z,	/* block dim */
 			0, 0,								/* shared mem, stream */
-			&args[0],							/* arguments */
+			args,								/* arguments */
 			NULL));
 
 		timer.stop();
@@ -126,8 +134,10 @@ int matrixMultiplyUsingCUDA(const dim3 &dimsA, const dim3 &dimsB, const int bloc
 		totalLeadTime += timer.getTime();
 		cout << "Lead time (" << i << "): " << timer.getTime() << endl;
 	}
+	pfTimer.stop();
 	cout << "Total lead time: " << totalLeadTime << endl;
 	cout << "Average lead time: " << totalLeadTime / NLTER << endl;
+	cout << "Performance time: " << pfTimer.getTime() << endl;
 
 	// Copy result from device to host
 	checkCudaErrors(cuMemcpyDtoH(h_C, d_C, memSizeC));
@@ -195,18 +205,21 @@ int matrixMultiplyUsingCUBLAS(const dim3 &dimsA, const dim3 &dimsB, int blockSiz
 	const float alpha = ALPHA;
 	const float beta = BETA;
 
-	// Perform warmup operation with cublas
-	//checkCudaErrors(cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, dimsB.x, dimsA.y, dimsA.x,
-	//	&alpha, d_B, dimsB.x, d_A, dimsA.x, &beta, d_C, dimsB.x));
+	// Perform warmup operation with CUBLAS
+	checkCudaErrors(cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, 
+		dimsB.x, dimsA.y, dimsA.x,
+		&alpha, d_B, dimsB.x, d_A, dimsA.x, &beta, d_C, dimsB.x));
+	checkCudaErrors(cuCtxSynchronize());
 
 	double totalLeadTime = 0;
+	StopWatchWin pfTimer;
+	pfTimer.start();
 	for (int i = 0; i < NLTER; i++) {
 		StopWatchWin timer;
 		timer.start();
 
-		// note cublas is column primary!
-		// need to transpose the order
-		checkCudaErrors(cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, dimsB.x, dimsA.y, dimsA.x,
+		checkCudaErrors(cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, 
+			dimsB.x, dimsA.y, dimsA.x,
 			&alpha, d_B, dimsB.x, d_A, dimsA.x, &beta, d_C, dimsB.x));
 
 		timer.stop();
@@ -215,8 +228,10 @@ int matrixMultiplyUsingCUBLAS(const dim3 &dimsA, const dim3 &dimsB, int blockSiz
 		totalLeadTime += timer.getTime();
 		cout << "Lead time (" << i << "): " << timer.getTime() << endl;
 	}
+	pfTimer.stop();
 	cout << "Total lead time: " << totalLeadTime << endl;
 	cout << "Average lead time: " << totalLeadTime / NLTER << endl;
+	cout << "Performance time: " << pfTimer.getTime() << endl;
 
 	// Copy result from device to host
 	checkCudaErrors(cudaMemcpy(h_C, d_C, memSizeC, cudaMemcpyDeviceToHost));
@@ -234,11 +249,6 @@ int matrixMultiplyUsingCUBLAS(const dim3 &dimsA, const dim3 &dimsB, int blockSiz
 	checkCudaErrors(cudaFree(d_B));
 	checkCudaErrors(cudaFree(d_C));
 
-	// cudaDeviceReset causes the driver to clean up all state. While
-	// not mandatory in normal operation, it is good practice.  It is also
-	// needed to ensure correct operation when the application is being
-	// profiled. Calling cudaDeviceReset causes all profile data to be
-	// flushed before the application exits
 	cudaDeviceReset();
 
 	if (correct) {
@@ -249,7 +259,7 @@ int matrixMultiplyUsingCUBLAS(const dim3 &dimsA, const dim3 &dimsB, int blockSiz
 	}
 }
 
-int matrixMultiplyOnCPU(const dim3 &dimsA, const dim3 &dimsB) {
+int matrixMultiplyUsingCPU(const dim3 &dimsA, const dim3 &dimsB) {
 
 	// Allocate memory for matrices A, B and C
 	unsigned int sizeA = dimsA.x * dimsA.y;
@@ -277,6 +287,8 @@ int matrixMultiplyOnCPU(const dim3 &dimsA, const dim3 &dimsB) {
 	cout << "Computing result using CPU..." << endl;
 
 	double totalLeadTime = 0;
+	StopWatchWin pfTimer;
+	pfTimer.start();
 	for (int i = 0; i < NLTER; i++) {
 		StopWatchWin timer;
 		timer.start();
@@ -286,8 +298,10 @@ int matrixMultiplyOnCPU(const dim3 &dimsA, const dim3 &dimsB) {
 		totalLeadTime += timer.getTime();
 		cout << "Lead time (" << i << "): " << timer.getTime() << endl;
 	}
+	pfTimer.stop();
 	cout << "Total lead time: " << totalLeadTime << endl;
 	cout << "Average lead time: " << totalLeadTime / NLTER << endl;
+	cout << "Performance time: " << pfTimer.getTime() << endl;
 
 	// Check the result
 	bool correct = CheckResult(dimsA, dimsC, h_C);

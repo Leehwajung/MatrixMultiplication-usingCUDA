@@ -101,7 +101,6 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatrixMul.cpp" />
-    <ClCompile Include="matrixMulCUBLAS.cpp" />
     <None Include="MatrixMul_kernel.cu" />
   </ItemGroup>
   <ItemGroup>
@@ -114,7 +113,6 @@
     <ClInclude Include="helper_string.h" />
     <ClInclude Include="helper_timer.h" />
     <ClInclude Include="MatrixMul.h" />
-    <ClInclude Include="matrixMulCUBLAS.h" />
     <ClInclude Include="nvrtc_helper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

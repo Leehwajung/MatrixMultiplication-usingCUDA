@@ -1,8 +1,9 @@
 #include <iostream>
 #include "MatrixMul.h"
+
 using namespace std;
 
-int compareCUDAandCPUMultiplycation(const dim3& dimsA, const dim3& dimsB);
+int MatrixMultiply(const dim3& dimsA, const dim3& dimsB);
 
 
 /**
@@ -10,23 +11,23 @@ int compareCUDAandCPUMultiplycation(const dim3& dimsA, const dim3& dimsB);
  */
 int main() {
 
-	dim3 dimsL(10 * BLOCKSIZE, 10 * BLOCKSIZE, 1);
-	dim3 dimsH(100 * BLOCKSIZE, 100 * BLOCKSIZE, 1);
+	dim3 dimsL(BLOCKSIZE, BLOCKSIZE, 1);
+	dim3 dimsH(50 * BLOCKSIZE, 50 * BLOCKSIZE, 1);
 
-	// matrix size 320 * 320
-	int matrixResult = compareCUDAandCPUMultiplycation(dimsL, dimsL);
+	// matrix size 32 * 32
+	int matrixResult = MatrixMultiply(dimsL, dimsL);
 	if (matrixResult) {
 		exit(matrixResult);
 	}
 
 	cout << endl << "-----" << endl;
 
-	// matrix size 3200 * 3200
-	matrixResult = compareCUDAandCPUMultiplycation(dimsH, dimsH);
+	// matrix size 1600 * 1600
+	matrixResult = MatrixMultiply(dimsH, dimsH);
 	exit(matrixResult);
 }
 
-int compareCUDAandCPUMultiplycation(const dim3& dimsA, const dim3& dimsB) {
+int MatrixMultiply(const dim3& dimsA, const dim3& dimsB) {
 
 	if (dimsA.x != dimsB.y) {
 		cerr << "Error: outer matrix dimensions must be equal. (" << dimsA.x << " != " << dimsB.y << ")" << endl;
@@ -41,10 +42,12 @@ int compareCUDAandCPUMultiplycation(const dim3& dimsA, const dim3& dimsB) {
 
 	cout << endl;
 
-	matrixResult = matrixMultiplyUsingCUBLAS(dimsA, dimsB);
+	matrixResult = matrixMultiplyUsingCPU(dimsA, dimsB);
 	if (matrixResult) {
 		return(matrixResult);
 	}
 
-	return matrixResult;// matrixMultiplyOnCPU(dimsA, dimsB);
+	cout << endl;
+
+	return matrixMultiplyUsingCUBLAS(dimsA, dimsB);
 }

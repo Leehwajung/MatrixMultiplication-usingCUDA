@@ -16,7 +16,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2D8EC46C-A218-492C-B42E-8E7EF24E8F54}</ProjectGuid>
     <RootNamespace>matrixMul_nvrtc_vs2013</RootNamespace>
-    <ProjectName>MatrixMultiplication_byCUDA</ProjectName>
+    <ProjectName>MatrixMultiplier_UsingCUDA</ProjectName>
     <CudaToolkitCustomDir />
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>

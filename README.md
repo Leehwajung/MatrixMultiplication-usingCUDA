@@ -1,4 +1,4 @@
-# Matrix Multiplication using CUDA
+# Matrix Multiplier Using CUDA
 Parallel Processing Course - GPGPU(CUDA) Project
 
 ### Software ###
